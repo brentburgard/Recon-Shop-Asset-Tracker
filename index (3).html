@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recon Asset Manager — Manheim Recon Operations</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,600&family=Barlow+Condensed:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:        #003468;
+    --navy-dark:   #001b35;
+    --navy-mid:    #00285a;
+    --blue:        #005ba8;
+    --blue-dark:   #004986;
+    --cerulean:    #2c90cc;
+    --cerulean-lt: #c1dff2;
+    --cerulean-bg: #eaf4fb;
+    --gold:        #ffc20e;
+    --gold-dark:   #ebb000;
+    --gold-lt:     #fff8dc;
+    --gold-pale:   #fffaed;
+    --bg:          #ffffff;
+    --bg2:         #f0f4f9;
+    --surface:     #ffffff;
+    --surface2:    #f7fafd;
+    --border:      #cfdcea;
+    --border2:     #b8cfe0;
+    --text:        #0d1f35;
+    --text2:       #2a4060;
+    --muted:       #5a7a99;
+    --muted-lt:    #8aacca;
+    --green:       #0e8c5a;
+    --green-bg:    #d4f4e8;
+    --green-bd:    #a8e6ce;
+    --font-ui:     'Barlow', sans-serif;
+    --font-cond:   'Barlow Condensed', sans-serif;
+    --font-mono:   'JetBrains Mono', monospace;
+    --shadow-sm:   0 1px 4px rgba(0,52,104,0.08);
+    --shadow-md:   0 4px 16px rgba(0,52,104,0.12);
+    --radius:      10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-ui); background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--cerulean); text-decoration: underline; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--navy-dark); border-bottom: 3px solid var(--gold);
+    padding: 0 32px; display: flex; align-items: center; height: 60px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,27,53,0.4);
+  }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+  .brand-name { font-family: var(--font-cond); font-weight: 800; font-size: 16px; color: #fff; letter-spacing: 0.08em; text-transform: uppercase; }
+  .brand-sub { font-size: 10px; color: var(--cerulean-lt); letter-spacing: 0.06em; text-transform: uppercase; }
+  .topbar-divider { width: 1px; height: 32px; background: rgba(255,255,255,0.15); margin: 0 22px; }
+  .topbar-repo { font-family: var(--font-cond); font-weight: 700; font-size: 15px; color: rgba(255,255,255,0.6); letter-spacing: 0.05em; }
+  .topbar-repo span { color: #fff; }
+  .topbar-nav { display: flex; gap: 2px; margin-left: 28px; }
+  .topbar-link { color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 6px; transition: all 0.15s; text-decoration: none; }
+  .topbar-link:hover { background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; }
+  .topbar-link.active { background: rgba(255,194,14,0.15); color: var(--gold); }
+  .topbar-right { margin-left: auto; display: flex; gap: 8px; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 7px; font-family: var(--font-ui); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-decoration: none; border: none; }
+  .btn-outline { background: transparent; border: 1.5px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.85); }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.7); color: #fff; text-decoration: none; }
+  .btn-gold { background: var(--gold); border: 1.5px solid var(--gold-dark); color: var(--navy-dark); }
+  .btn-gold:hover { background: var(--gold-dark); text-decoration: none; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-mid) 55%, var(--blue-dark) 100%);
+    padding: 52px 0 0; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-orb1 { position: absolute; right: -80px; top: -80px; width: 360px; height: 360px; border-radius: 50%; background: radial-gradient(circle, rgba(255,194,14,0.12) 0%, transparent 70%); pointer-events: none; }
+  .hero-orb2 { position: absolute; left: 8%; bottom: -60px; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(44,144,204,0.14) 0%, transparent 70%); pointer-events: none; }
+  .hero-inner { max-width: 1340px; margin: 0 auto; padding: 0 40px; position: relative; z-index: 1; }
+  .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,194,14,0.15); border: 1px solid rgba(255,194,14,0.35); border-radius: 20px; padding: 4px 14px; font-family: var(--font-cond); font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px; }
+  .hero-eyebrow::before { content: '●'; font-size: 8px; }
+  .hero-title { font-family: var(--font-cond); font-size: 52px; font-weight: 900; color: #fff; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1.05; margin-bottom: 16px; }
+  .hero-title .accent { color: var(--gold); }
+  .hero-desc { font-size: 15px; color: rgba(193,223,242,0.88); max-width: 560px; line-height: 1.7; margin-bottom: 30px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+  .hero-stats { display: flex; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(255,255,255,0.1); }
+  .hero-stat { flex: 1; padding: 18px 28px; border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 2px; }
+  .hero-stat:last-child { border-right: none; }
+  .hs-value { font-family: var(--font-cond); font-size: 30px; font-weight: 900; color: var(--gold); line-height: 1; }
+  .hs-label { font-size: 11px; color: rgba(193,223,242,0.65); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* LAYOUT */
+  .layout { max-width: 1340px; margin: 0 auto; display: grid; grid-template-columns: 1fr 300px; gap: 28px; padding: 32px 40px 60px; }
+  @media (max-width: 960px) { .layout { grid-template-columns: 1fr; padding: 24px 20px 48px; } }
+
+  /* PANEL / FILE BROWSER */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 24px; }
+  .panel-header { background: var(--navy); padding: 11px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .panel-title { font-family: var(--font-cond); font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.75); letter-spacing: 0.1em; text-transform: uppercase; }
+  .branch-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 3px 10px; font-family: var(--font-mono); font-size: 11px; color: var(--cerulean-lt); }
+  .commit-meta { font-size: 11px; color: rgba(193,223,242,0.55); }
+  .commit-meta strong { color: rgba(255,255,255,0.8); }
+  .file-row { display: grid; grid-template-columns: 20px 1fr 2fr auto; align-items: center; gap: 14px; padding: 11px 20px; border-bottom: 1px solid var(--border); font-size: 13px; transition: background 0.1s; }
+  .file-row:last-child { border-bottom: none; }
+  .file-row:hover { background: var(--cerulean-bg); }
+  .file-icon { width: 16px; height: 16px; }
+  .file-name-link { font-weight: 600; color: var(--blue); }
+  .file-name-link:hover { color: var(--cerulean); }
+  .file-commit { color: var(--muted); font-size: 12px; }
+  .file-age { color: var(--muted-lt); font-size: 11px; font-family: var(--font-mono); white-space: nowrap; }
+
+  /* TABS */
+  .tab-bar { display: flex; background: var(--surface2); border: 1px solid var(--border); border-bottom: none; border-radius: var(--radius) var(--radius) 0 0; }
+  .tab { display: flex; align-items: center; gap: 7px; padding: 12px 20px; font-size: 13px; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; transition: all 0.15s; text-decoration: none; white-space: nowrap; }
+  .tab:hover { color: var(--navy); text-decoration: none; }
+  .tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+  .tab-count { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 1px 7px; font-size: 11px; font-weight: 700; color: var(--muted); }
+
+  /* README */
+  .readme-header { background: var(--surface2); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 11px 20px; display: flex; align-items: center; gap: 8px; font-family: var(--font-cond); font-size: 12px; font-weight: 700; color: var(--navy); letter-spacing: 0.08em; text-transform: uppercase; }
+  .readme-body { background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); padding: 36px 44px 40px; }
+  .rm-h1 { font-family: var(--font-cond); font-size: 36px; font-weight: 900; color: var(--navy); letter-spacing: 0.02em; text-transform: uppercase; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 3px solid var(--gold); line-height: 1.1; }
+  .rm-h2 { font-family: var(--font-cond); font-size: 18px; font-weight: 800; color: var(--navy); letter-spacing: 0.06em; text-transform: uppercase; padding-bottom: 8px; margin: 34px 0 14px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .rm-h2::before { content: ''; width: 4px; height: 20px; background: var(--gold); border-radius: 2px; flex-shrink: 0; }
+  .rm-p { color: var(--text2); margin: 0 0 14px; line-height: 1.75; font-size: 14px; }
+  code { font-family: var(--font-mono); font-size: 12px; background: var(--cerulean-bg); border: 1px solid var(--cerulean-lt); border-radius: 4px; padding: 2px 7px; color: var(--blue-dark); font-weight: 500; }
+  pre { background: var(--navy-dark); border-radius: 8px; padding: 22px 26px; overflow-x: auto; margin: 0 0 20px; border: 1px solid rgba(0,52,104,0.3); }
+  pre code { background: none; border: none; padding: 0; font-size: 13px; color: rgba(193,223,242,0.9); line-height: 1.7; font-weight: 400; }
+  .tc { color: var(--gold); } /* tree comment */
+  .tf { color: #a5d6ff; }   /* tree file */
+  .td { color: var(--cerulean-lt); opacity: 0.6; } /* tree dir label */
+
+  /* BADGES */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .m-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 20px; padding: 4px 12px; font-family: var(--font-cond); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .m-badge.gold  { background: var(--gold-lt);    color: var(--navy);   border: 1px solid var(--gold-dark); }
+  .m-badge.blue  { background: var(--cerulean-bg); color: var(--blue);  border: 1px solid var(--cerulean-lt); }
+  .m-badge.green { background: var(--green-bg);   color: var(--green);  border: 1px solid var(--green-bd); }
+  .m-badge.muted { background: var(--bg2);        color: var(--muted);  border: 1px solid var(--border2); }
+
+  /* FEATURE GRID */
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 14px; margin: 14px 0 28px; }
+  .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; border-top: 4px solid var(--navy); box-shadow: var(--shadow-sm); transition: box-shadow 0.2s, transform 0.2s; }
+  .feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .feature-card.t-gold  { border-top-color: var(--gold); }
+  .feature-card.t-blue  { border-top-color: var(--cerulean); }
+  .feature-card.t-green { border-top-color: var(--green); }
+  .feature-card.t-navy  { border-top-color: var(--navy); }
+  .fc-icon { font-size: 24px; margin-bottom: 10px; }
+  .fc-title { font-family: var(--font-cond); font-size: 14px; font-weight: 800; color: var(--navy); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 5px; }
+  .fc-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+  /* SHOP BLOCKS */
+  .shop-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+  .shop-block { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; border-left: 5px solid var(--blue); }
+  .shop-block.mech { border-left-color: var(--blue); }
+  .shop-block.bp   { border-left-color: var(--navy); }
+  .shop-block.det  { border-left-color: var(--cerulean); }
+  .shop-block-title { font-family: var(--font-cond); font-size: 14px; font-weight: 800; color: var(--navy); letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .shop-tag { display: inline-block; font-family: var(--font-cond); font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; }
+  .shop-tag.mech { background: rgba(0,91,168,0.1); color: var(--blue); border: 1px solid rgba(0,91,168,0.25); }
+  .shop-tag.bp   { background: rgba(0,52,104,0.08); color: var(--navy); border: 1px solid rgba(0,52,104,0.2); }
+  .shop-tag.det  { background: rgba(44,144,204,0.1); color: #1a6fa0; border: 1px solid rgba(44,144,204,0.3); }
+  .shop-block-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* PM TABLE */
+  .pm-table { width: 100%; border-collapse: collapse; border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+  .pm-table thead th { background: var(--navy); color: rgba(255,255,255,0.85); padding: 10px 16px; text-align: left; font-family: var(--font-cond); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .pm-table tbody tr { border-bottom: 1px solid var(--border); }
+  .pm-table tbody tr:last-child { border-bottom: none; }
+  .pm-table tbody tr:nth-child(even) { background: var(--surface2); }
+  .pm-table tbody tr:hover { background: var(--cerulean-bg); }
+  .pm-table td { padding: 10px 16px; font-size: 13px; color: var(--text2); }
+  .pm-table td:first-child { font-family: var(--font-mono); font-weight: 600; color: var(--blue); font-size: 12px; }
+
+  /* CHANGELOG */
+  .changelog { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+  .cl-item { display: grid; grid-template-columns: 90px 1fr auto; gap: 14px; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .cl-item:last-child { border-bottom: none; }
+  .cl-item:hover { background: var(--cerulean-bg); }
+  .cl-hash { font-family: var(--font-mono); font-size: 11px; color: var(--blue); background: var(--cerulean-bg); border: 1px solid var(--cerulean-lt); border-radius: 5px; padding: 2px 7px; white-space: nowrap; }
+  .cl-msg { font-size: 13px; color: var(--text); }
+  .cl-msg em { font-style: normal; color: var(--green); font-weight: 700; font-family: var(--font-cond); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .cl-age { font-size: 11px; color: var(--muted-lt); font-family: var(--font-mono); white-space: nowrap; }
+
+  /* CALLOUTS */
+  .callout { border-radius: var(--radius); padding: 15px 18px; margin: 18px 0; font-size: 13px; display: flex; gap: 12px; }
+  .callout.gold { background: var(--gold-pale); border: 1px solid rgba(235,176,0,0.4); border-left: 5px solid var(--gold); }
+  .callout.blue { background: var(--cerulean-bg); border: 1px solid var(--cerulean-lt); border-left: 5px solid var(--cerulean); }
+  .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.5; }
+  .callout-body { color: var(--text2); line-height: 1.65; }
+  .callout-body strong { color: var(--navy); }
+
+  /* STEPS */
+  .steps { counter-reset: steps; list-style: none; margin: 0 0 20px; padding: 0; }
+  .steps li { counter-increment: steps; display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text2); }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(steps); min-width: 26px; height: 26px; background: var(--navy); color: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-cond); font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+
+  /* SIDEBAR */
+  .sidebar { display: flex; flex-direction: column; gap: 20px; }
+  .sb-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .sb-head { background: var(--navy); padding: 10px 16px; font-family: var(--font-cond); font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.8); letter-spacing: 0.12em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .sb-head::before { content: ''; width: 3px; height: 14px; background: var(--gold); border-radius: 2px; }
+  .sb-body { padding: 16px; }
+  .sb-about { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 14px; }
+  .sb-tag { display: inline-flex; align-items: center; background: var(--cerulean-bg); border: 1px solid var(--cerulean-lt); color: var(--blue); border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; margin: 3px 3px 3px 0; font-family: var(--font-cond); letter-spacing: 0.04em; }
+  .cta-launch { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--gold); border: 2px solid var(--gold-dark); color: var(--navy-dark); border-radius: 8px; padding: 12px; font-family: var(--font-cond); font-size: 15px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none; transition: all 0.15s; width: 100%; margin-bottom: 8px; }
+  .cta-launch:hover { background: var(--gold-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(235,176,0,0.35); text-decoration: none; }
+  .cta-dl { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--surface2); border: 1.5px solid var(--border2); color: var(--navy); border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.15s; width: 100%; }
+  .cta-dl:hover { background: var(--cerulean-bg); border-color: var(--cerulean-lt); text-decoration: none; }
+  .sb-stat { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .sb-stat:last-child { border-bottom: none; }
+  .sb-stat-icon { font-size: 15px; flex-shrink: 0; }
+  .sb-stat-label { color: var(--muted); flex: 1; }
+  .sb-stat-val { font-weight: 700; color: var(--navy); }
+  .lang-bar { height: 10px; border-radius: 5px; overflow: hidden; display: flex; margin-bottom: 14px; border: 1px solid var(--border); }
+  .lang-legend { display: flex; flex-wrap: wrap; gap: 12px; }
+  .lang-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+  .lang-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .release-pill { display: flex; align-items: center; gap: 10px; background: var(--green-bg); border: 1px solid var(--green-bd); border-radius: 8px; padding: 12px 14px; }
+  .release-ver { font-family: var(--font-cond); font-size: 16px; font-weight: 800; color: var(--green); }
+  .release-date { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  .contrib-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .contrib-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-cond); font-size: 14px; font-weight: 800; border: 2px solid var(--border2); }
+
+  /* FOOTER */
+  footer { background: var(--navy-dark); border-top: 3px solid var(--gold); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+  .footer-brand { display: flex; align-items: center; gap: 12px; }
+  .footer-m { width: 30px; height: 30px; background: var(--gold); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-family: var(--font-cond); font-weight: 900; font-size: 17px; color: var(--navy); }
+  .footer-title { font-family: var(--font-cond); font-weight: 700; font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 0.06em; }
+  .footer-copy { font-size: 11px; color: rgba(193,223,242,0.5); }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { font-size: 12px; color: rgba(193,223,242,0.45); }
+  .footer-links a:hover { color: rgba(193,223,242,0.85); text-decoration: none; }
+
+  /* ANIMATE */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-inner > * { animation: fadeUp 0.5s ease both; }
+  .hero-inner > *:nth-child(1) { animation-delay: 0.05s; }
+  .hero-inner > *:nth-child(2) { animation-delay: 0.12s; }
+  .hero-inner > *:nth-child(3) { animation-delay: 0.2s; }
+  .hero-inner > *:nth-child(4) { animation-delay: 0.28s; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand-text">
+    <div class="brand-name">Manheim</div>
+    <div class="brand-sub">Recon Operations</div>
+  </div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-repo">recon / <span>asset-manager</span></div>
+  <nav class="topbar-nav">
+    <a class="topbar-link active" href="#">📄 Code</a>
+    <a class="topbar-link" href="#">🐛 Issues</a>
+    <a class="topbar-link" href="#">📋 Wiki</a>
+    <a class="topbar-link" href="#">📊 Releases</a>
+  </nav>
+  <div class="topbar-right">
+    <a class="btn btn-outline" href="https://brentburgard.github.io/Recon-Shop-Asset-Tracker/" target="_blank" rel="noopener">🌐 View Live Site</a>
+    <a class="btn btn-gold" href="https://brentburgard.github.io/Recon-Shop-Asset-Tracker/recon_asset_manager__2_.html" target="_blank" rel="noopener">🚀 Launch App</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb1"></div>
+  <div class="hero-orb2"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Manheim Recon Operations · Internal Tooling</div>
+    <h1 class="hero-title">Recon Shop<br><span class="accent">Asset &amp; PM Tracker</span></h1>
+    <p class="hero-desc">A zero-dependency, single-file web application for tracking equipment assets and preventive maintenance schedules across all 73 Manheim U.S. auction locations.</p>
+    <div class="hero-actions">
+      <a class="btn btn-gold" href="https://brentburgard.github.io/Recon-Shop-Asset-Tracker/recon_asset_manager__2_.html" target="_blank" rel="noopener" style="font-size:15px;padding:11px 26px">🚀 Launch App</a>
+      <a class="btn btn-outline" href="https://github.com/brentburgard/Recon-Shop-Asset-Tracker" target="_blank" rel="noopener" style="font-size:14px;padding:10px 22px">🐙 View on GitHub</a>
+      <a class="btn btn-outline" href="#readme" style="font-size:14px;padding:10px 22px">📖 Read Docs</a>
+    </div>
+    <div style="margin-bottom:36px;margin-top:16px">
+      <a href="https://brentburgard.github.io/Recon-Shop-Asset-Tracker/recon_asset_manager__2_.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:9px 16px;font-size:12px;color:rgba(193,223,242,0.85);text-decoration:none;font-family:var(--font-mono);letter-spacing:0.01em;">
+        🌐&nbsp; brentburgard.github.io/Recon-Shop-Asset-Tracker/recon_asset_manager__2_.html
+      </a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hs-value">73</div><div class="hs-label">Locations</div></div>
+    <div class="hero-stat"><div class="hs-value">100+</div><div class="hs-label">Equipment Types</div></div>
+    <div class="hero-stat"><div class="hs-value">3</div><div class="hs-label">Shop Categories</div></div>
+    <div class="hero-stat"><div class="hs-value">v2.0</div><div class="hs-label">Current Release</div></div>
+    <div class="hero-stat"><div class="hs-value">0</div><div class="hs-label">Dependencies</div></div>
+  </div>
+</section>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+  <main>
+
+    <!-- FILE BROWSER -->
+    <div class="panel">
+      <div class="panel-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="panel-title">Repository</span>
+          <span class="branch-pill">⎇ main</span>
+        </div>
+        <span class="commit-meta"><strong>recon-admin</strong> · 5 commits · updated 7 days ago</span>
+      </div>
+      <div class="file-row">
+        <svg class="file-icon" viewBox="0 0 16 16" fill="#2c90cc"><path d="M1.75 1A1.75 1.75 0 000 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0016 13.25v-8.5A1.75 1.75 0 0014.25 3H7.5L5.694 1.25A1.75 1.75 0 004.5 1H1.75z"/></svg>
+        <a class="file-name-link" href="#">assets/</a>
+        <span class="file-commit">Static assets and icons</span>
+        <span class="file-age">2wk ago</span>
+      </div>
+      <div class="file-row">
+        <svg class="file-icon" viewBox="0 0 16 16" fill="#e34c26"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0113.25 16h-9.5A1.75 1.75 0 012 14.25V1.75zm1.75-.25a.25.25 0 00-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 00.25-.25V6h-2.75A1.75 1.75 0 019 4.25V1.5H3.75zm6.75.062V4.25c0 .138.112.25.25.25h2.688a.252.252 0 00-.011-.013L10.5 1.812z"/></svg>
+        <a class="file-name-link" href="https://brentburgard.github.io/Recon-Shop-Asset-Tracker/recon_asset_manager__2_.html" target="_blank" rel="noopener">recon_asset_manager.html</a>
+        <span class="file-commit">feat: add PM progress bar + location filter</span>
+        <span class="file-age">7d ago</span>
+      </div>
+      <div class="file-row">
+        <svg class="file-icon" viewBox="0 0 16 16" fill="#5a7a99"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0113.25 16h-9.5A1.75 1.75 0 012 14.25V1.75zm1.75-.25a.25.25 0 00-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 00.25-.25V6h-2.75A1.75 1.75 0 019 4.25V1.5H3.75zm6.75.062V4.25c0 .138.112.25.25.25h2.688a.252.252 0 00-.011-.013L10.5 1.812z"/></svg>
+        <a class="file-name-link" href="#">README.md</a>
+        <span class="file-commit">docs: update README with feature overview</span>
+        <span class="file-age">7d ago</span>
+      </div>
+      <div class="file-row">
+        <svg class="file-icon" viewBox="0 0 16 16" fill="#5a7a99"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0113.25 16h-9.5A1.75 1.75 0 012 14.25V1.75zm1.75-.25a.25.25 0 00-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 00.25-.25V6h-2.75A1.75 1.75 0 019 4.25V1.5H3.75zm6.75.062V4.25c0 .138.112.25.25.25h2.688a.252.252 0 00-.011-.013L10.5 1.812z"/></svg>
+        <a class="file-name-link" href="#">CHANGELOG.md</a>
+        <span class="file-commit">chore: v2 release notes</span>
+        <span class="file-age">7d ago</span>
+      </div>
+    </div>
+
+    <!-- README -->
+    <div id="readme">
+      <div class="tab-bar">
+        <a class="tab active" href="#">📄 README.md</a>
+        <a class="tab" href="#">📋 Changelog <span class="tab-count">5</span></a>
+        <a class="tab" href="#">📦 Releases <span class="tab-count">2</span></a>
+      </div>
+      <div class="readme-header">📘 README — Manheim Recon Asset &amp; PM Tracker</div>
+      <div class="readme-body">
+
+        <div class="rm-h1">🔧 Manheim Recon Shop<br>Asset &amp; PM Tracker</div>
+
+        <div class="badge-row">
+          <span class="m-badge gold">v2.0 · Latest</span>
+          <span class="m-badge blue">Vanilla HTML/JS</span>
+          <span class="m-badge green">● Active</span>
+          <span class="m-badge muted">No Dependencies</span>
+          <span class="m-badge muted">localStorage</span>
+        </div>
+
+        <p class="rm-p">A single-file, zero-dependency web application built to Manheim brand standards for tracking recon shop equipment and preventive maintenance (PM) schedules across all U.S. auction locations. No build step, no framework, no server required.</p>
+
+        <div class="callout gold">
+          <div class="callout-icon">⚡</div>
+          <div class="callout-body"><strong>Zero-install deployment.</strong> Drop <code>recon_asset_manager.html</code> anywhere — SharePoint, Teams tab, local file system, or any static host. Open in any modern browser and it works instantly. All data is stored locally in the browser.</div>
+        </div>
+
+        <div class="rm-h2">✨ Features</div>
+        <div class="feature-grid">
+          <div class="feature-card t-gold">
+            <div class="fc-icon">📊</div>
+            <div class="fc-title">Live Dashboard</div>
+            <div class="fc-desc">Real-time KPI cards: total assets, active count, out-of-service, PM status breakdown, and active location count with searchable table.</div>
+          </div>
+          <div class="feature-card t-blue">
+            <div class="fc-icon">📍</div>
+            <div class="fc-title">73 Locations</div>
+            <div class="fc-desc">All Manheim U.S. auction sites. Filter by location and shop type — Mechanic, Body &amp; Paint, or Detail.</div>
+          </div>
+          <div class="feature-card t-green">
+            <div class="fc-icon">🔔</div>
+            <div class="fc-title">PM Alerts</div>
+            <div class="fc-desc">Color-coded alerts: green (current), yellow (due ≤30 days), red (overdue). Visual countdown progress bars per asset.</div>
+          </div>
+          <div class="feature-card t-navy">
+            <div class="fc-icon">📝</div>
+            <div class="fc-title">Full CRUD</div>
+            <div class="fc-desc">Add, edit, and delete equipment records. Inline edit modal for PM updates without leaving the page.</div>
+          </div>
+        </div>
+
+        <div class="rm-h2">📁 App Structure</div>
+        <pre><code><span style="color:#a5d6ff">recon_asset_manager.html</span>
+├── &lt;head&gt;              <span style="color:var(--cerulean-lt);opacity:.6">— Google Fonts, Manheim CSS variables</span>
+├── &lt;body&gt;
+│   ├── header          <span style="color:var(--cerulean-lt);opacity:.6">— Sticky nav: Dashboard | Locations</span>
+│   ├── <span style="color:var(--gold)">#page-dashboard</span>
+│   │   ├── Stats row   <span style="color:var(--cerulean-lt);opacity:.6">— 7 KPI cards</span>
+│   │   ├── Filter bar  <span style="color:var(--cerulean-lt);opacity:.6">— All / PM Current / Due Soon / Overdue</span>
+│   │   └── Asset table <span style="color:var(--cerulean-lt);opacity:.6">— Searchable, all locations</span>
+│   ├── <span style="color:var(--gold)">#page-locations</span>
+│   │   ├── Location select  <span style="color:var(--cerulean-lt);opacity:.6">— 73 Manheim sites</span>
+│   │   ├── Shop filter      <span style="color:var(--cerulean-lt);opacity:.6">— Mechanic / B&P / Detail</span>
+│   │   ├── Add-asset form   <span style="color:var(--cerulean-lt);opacity:.6">— Collapsible</span>
+│   │   └── Asset table      <span style="color:var(--cerulean-lt);opacity:.6">— With PM progress bars</span>
+│   └── <span style="color:var(--gold)">#edit-modal</span>    <span style="color:var(--cerulean-lt);opacity:.6">— Inline PM record overlay</span>
+└── &lt;script&gt;            <span style="color:var(--cerulean-lt);opacity:.6">— All logic, data, CRUD, localStorage</span></code></pre>
+
+        <div class="rm-h2">🏭 Equipment Coverage</div>
+        <div class="shop-row">
+          <div class="shop-block mech">
+            <div class="shop-block-title"><span class="shop-tag mech">MECH</span> Mechanic Shop — 39 Types</div>
+            <div class="shop-block-desc">Hydraulic lifts (2-post &amp; 4-post), wheel alignment systems, brake lathes, OBD diagnostic scanners, AC recovery machines, MIG welders, exhaust evacuation systems, tire changers, and more.</div>
+          </div>
+          <div class="shop-block bp">
+            <div class="shop-block-title"><span class="shop-tag bp">B&amp;P</span> Body &amp; Paint Shop — 43 Types</div>
+            <div class="shop-block-desc">Spray booths (cross-draft &amp; down-draft, paint &amp; primer), frame straightening racks, infrared curing lamps, color spectrometers, paint mixing stations, fire suppression systems, and more.</div>
+          </div>
+          <div class="shop-block det">
+            <div class="shop-block-title"><span class="shop-tag det">DETL</span> Detail Shop — 20 Types</div>
+            <div class="shop-block-desc">Pressure washing systems, heated carpet extractors, canister vacuum systems, chemical distribution systems, water treatment equipment, dual-action polishers, and more.</div>
+          </div>
+        </div>
+
+        <div class="rm-h2">🗓 PM Interval Schedule</div>
+        <table class="pm-table">
+          <thead><tr><th>Interval</th><th>Label</th><th>Typical Use Cases</th></tr></thead>
+          <tbody>
+            <tr><td>30 days</td><td>Monthly</td><td>Vacuum bag inserts, fluid checks, filter changes</td></tr>
+            <tr><td>60 days</td><td>Bi-Monthly</td><td>Belt inspections, lubrication, hose checks</td></tr>
+            <tr><td>90 days</td><td>Quarterly</td><td>Standard PM — default for most equipment</td></tr>
+            <tr><td>180 days</td><td>Semi-Annual</td><td>Fire suppression checks, spray booth certification</td></tr>
+            <tr><td>365 days</td><td>Annual</td><td>Lift inspections, alignment calibration, major overhauls</td></tr>
+          </tbody>
+        </table>
+
+        <div class="rm-h2">💾 Data Persistence</div>
+        <p class="rm-p">All asset records are stored in the browser's <code>localStorage</code> under the key <code>manheim_recon_assets_v1</code>. Data persists across page refreshes on the same device and browser profile.</p>
+
+        <div class="callout blue">
+          <div class="callout-icon">🌱</div>
+          <div class="callout-body"><strong>Seed data included.</strong> A sample dataset for <strong>Manheim Atlanta</strong> is automatically loaded on first launch — covering all three shop types and demonstrating all PM status states (current, due soon, overdue).</div>
+        </div>
+
+        <div class="rm-h2">🕓 Changelog</div>
+        <div class="changelog">
+          <div class="cl-item"><div class="cl-hash">a3f92c1</div><div class="cl-msg"><em>feat</em> Add visual PM progress bar with days-remaining counter per asset</div><div class="cl-age">7d ago</div></div>
+          <div class="cl-item"><div class="cl-hash">b81d04e</div><div class="cl-msg"><em>feat</em> Location-level shop filter (Mechanic / B&P / Detail)</div><div class="cl-age">7d ago</div></div>
+          <div class="cl-item"><div class="cl-hash">c55e318</div><div class="cl-msg"><em>feat</em> Dashboard search bar with real-time filtering across all assets</div><div class="cl-age">2w ago</div></div>
+          <div class="cl-item"><div class="cl-hash">d12a77f</div><div class="cl-msg"><em>feat</em> Edit modal — update PM record, status, condition, notes inline</div><div class="cl-age">2w ago</div></div>
+          <div class="cl-item"><div class="cl-hash">e908b2c</div><div class="cl-msg"><em>init</em> Manheim Recon Asset &amp; PM Tracker v1.0 — dashboard + location pages</div><div class="cl-age">3w ago</div></div>
+        </div>
+
+        <div class="rm-h2">🚀 Getting Started</div>
+        <ol class="steps">
+          <li>Open <code>recon_asset_manager.html</code> in any modern browser (Chrome, Edge, Firefox, Safari).</li>
+          <li>Navigate to <strong>Locations</strong>, select your Manheim site from the dropdown.</li>
+          <li>Click <strong>+ Add Asset</strong> to log equipment with its last PM date and service interval.</li>
+          <li>Use the <strong>Dashboard</strong> to view all assets with PM status across all locations at a glance.</li>
+          <li>Click <strong>Edit</strong> on any row to update the PM record after service is completed.</li>
+        </ol>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-card">
+      <div class="sb-head">About</div>
+      <div class="sb-body">
+        <div class="sb-about">Single-file recon shop asset tracker and PM scheduler for all 73 Manheim U.S. auction locations. No backend, no installation required.</div>
+        <div style="margin-bottom:14px">
+          <span class="sb-tag">manheim</span><span class="sb-tag">recon-ops</span><span class="sb-tag">pm-tracker</span><span class="sb-tag">asset-mgmt</span><span class="sb-tag">vanilla-js</span><span class="sb-tag">single-file</span>
+        </div>
+        <a class="cta-launch" href="https://brentburgard.github.io/Recon-Shop-Asset-Tracker/recon_asset_manager__2_.html" target="_blank" rel="noopener">🚀 Launch App</a>
+        <a class="cta-dl" href="https://github.com/brentburgard/Recon-Shop-Asset-Tracker" target="_blank" rel="noopener">🐙 View on GitHub</a>
+      </div>
+    </div>
+
+    <div class="sb-card">
+      <div class="sb-head">Latest Release</div>
+      <div class="sb-body">
+        <div class="release-pill">
+          <div style="font-size:22px">📦</div>
+          <div>
+            <div class="release-ver">v2.0 — Latest</div>
+            <div class="release-date">Mar 10, 2026</div>
+          </div>
+        </div>
+        <p class="rm-p" style="margin-top:10px;font-size:12px;margin-bottom:0">PM progress bars, shop filters, and inline edit modal added in this release.</p>
+      </div>
+    </div>
+
+    <div class="sb-card">
+      <div class="sb-head">Repo Stats</div>
+      <div class="sb-body">
+        <div class="sb-stat"><div class="sb-stat-icon">📄</div><div class="sb-stat-label">Files</div><div class="sb-stat-val">1 HTML</div></div>
+        <div class="sb-stat"><div class="sb-stat-icon">📍</div><div class="sb-stat-label">Locations</div><div class="sb-stat-val">73</div></div>
+        <div class="sb-stat"><div class="sb-stat-icon">🔧</div><div class="sb-stat-label">Equipment types</div><div class="sb-stat-val">102</div></div>
+        <div class="sb-stat"><div class="sb-stat-icon">🔁</div><div class="sb-stat-label">Commits</div><div class="sb-stat-val">5</div></div>
+        <div class="sb-stat"><div class="sb-stat-icon">📅</div><div class="sb-stat-label">Last updated</div><div class="sb-stat-val">Mar 10, 2026</div></div>
+      </div>
+    </div>
+
+    <div class="sb-card">
+      <div class="sb-head">Languages</div>
+      <div class="sb-body">
+        <div class="lang-bar">
+          <div style="width:52%;background:#e34c26"></div>
+          <div style="width:31%;background:#003468"></div>
+          <div style="width:17%;background:#ffc20e"></div>
+        </div>
+        <div class="lang-legend">
+          <div class="lang-item"><div class="lang-dot" style="background:#e34c26"></div>HTML 52%</div>
+          <div class="lang-item"><div class="lang-dot" style="background:#003468"></div>CSS 31%</div>
+          <div class="lang-item"><div class="lang-dot" style="background:#ffc20e"></div>JS 17%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-card">
+      <div class="sb-head">Contributors</div>
+      <div class="sb-body">
+        <div class="contrib-row">
+          <div class="contrib-av" style="background:linear-gradient(135deg,var(--navy),var(--cerulean));color:var(--gold)" title="recon-admin">RA</div>
+          <div class="contrib-av" style="background:linear-gradient(135deg,var(--blue-dark),var(--navy));color:#fff" title="pm-tech">PT</div>
+          <div class="contrib-av" style="background:linear-gradient(135deg,var(--cerulean),var(--blue));color:#fff" title="maint-ops">MO</div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:10px">Manheim Recon Operations team</p>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div>
+      <div class="footer-title">Manheim Recon Operations</div>
+      <div class="footer-copy">© 2026 Manheim. All rights reserved.</div>
+    </div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Security</a>
+    <a href="#">Support</a>
+    <a href="#">Intranet</a>
+  </div>
+</footer>
+
+</body>
+</html>
